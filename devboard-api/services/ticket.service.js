@@ -1,4 +1,18 @@
 import { ticketList } from "../ticketList.js";
+
+const emptyStringChecker = (fieldList) => {
+    if (Array.isArray(fieldList)) {
+        fieldList.map((field) => {
+            const checkedField =
+                typeof field.value === "string" &&
+                field.value.trim(" ").length > 0;
+            if (!checkedField) {
+                throw Error(`Hiányzó ${field.name}`);
+            }
+        });
+    }
+};
+
 const createTicket = (body) => {
     const {
         title,
@@ -9,24 +23,11 @@ const createTicket = (body) => {
         gitHubIssueNumber,
     } = body;
 
-    const checkedTitle =
-        typeof title === "string" && title.trim(" ").length > 0;
-    const checkedDesc =
-        typeof description === "string" && description.trim(" ").length > 0;
-    const chekedResp =
-        typeof responsible === "string" && responsible.trim(" ").length > 0;
-
-    if (!checkedTitle) {
-        throw Error("Hiányzó title");
-    }
-
-    if (!checkedDesc) {
-        throw Error("Hiányzó description");
-    }
-
-    if (!chekedResp) {
-        throw Error("Hiányzó responsible");
-    }
+    emptyStringChecker([
+        { name: "title", value: title },
+        { name: "description", value: description },
+        { name: "responsible", value: responsible },
+    ]);
 
     const newTicket = {
         id: String(Date.now()),
@@ -44,19 +45,43 @@ const createTicket = (body) => {
     return newTicket;
 };
 
-const editTicket = (id,body) => {
-	const index = ticketList.findIndex((item) => item.id === id);
+const editTicket = (id, body) => {
+    const index = ticketList.findIndex((item) => item.id === id);
+    const {
+        title,
+        description,
+        responsible,
+        status,
+        priority,
+        gitHubIssueNumber,
+    } = body;
 
-	if(index === -1){
-		throw Error("A megadott id-val nem található ticket");
-	}
+    if (index === -1) {
+        throw Error("A megadott id-val nem található ticket");
+    }
 
-	const modifiedTicketList = Object.assign(ticketList[index],body); 
+    emptyStringChecker([
+        { name: "title", value: title },
+        { name: "description", value: description },
+        { name: "responsible", value: responsible },
+    ]);
 
-	return modifiedTicketList
-}
+    const modifiedTicket = {
+        title,
+        description,
+        responsible,
+        status,
+        priority,
+        updatedAt: new Date().toISOString(),
+        gitHubIssueNumber,
+    };
+
+    const modifiedTicketList = Object.assign(ticketList[index], modifiedTicket);
+
+    return modifiedTicketList;
+};
 
 export const TicketService = {
     createTicket,
-	editTicket
+    editTicket,
 };
