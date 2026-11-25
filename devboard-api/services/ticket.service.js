@@ -1,40 +1,62 @@
 import { ticketList } from "../ticketList.js";
 const createTicket = (body) => {
-    const { title, description, responsible, status, priority, updatedAt, gitHubIssueNumber } = body;
+    const {
+        title,
+        description,
+        responsible,
+        status,
+        priority,
+        gitHubIssueNumber,
+    } = body;
 
-	const checkedTitle = typeof title === "string" && title.trim(" ").length > 0;
-	const checkedDesc = typeof description === "string" && description.trim(" ").length > 0;
-	const chekedResp = typeof responsible === "string" && responsible.trim(" ").length > 0;
+    const checkedTitle =
+        typeof title === "string" && title.trim(" ").length > 0;
+    const checkedDesc =
+        typeof description === "string" && description.trim(" ").length > 0;
+    const chekedResp =
+        typeof responsible === "string" && responsible.trim(" ").length > 0;
 
-	if (!checkedTitle) {
-		throw Error('Hiányzó title')
+    if (!checkedTitle) {
+        throw Error("Hiányzó title");
+    }
+
+    if (!checkedDesc) {
+        throw Error("Hiányzó description");
+    }
+
+    if (!chekedResp) {
+        throw Error("Hiányzó responsible");
+    }
+
+    const newTicket = {
+        id: String(Date.now()),
+        title,
+        description,
+        responsible,
+        status,
+        priority,
+        updatedAt: new Date().toISOString(),
+        gitHubIssueNumber,
+    };
+
+    ticketList.push(newTicket);
+
+    return newTicket;
+};
+
+const editTicket = (id,body) => {
+	const index = ticketList.findIndex((item) => item.id === id);
+
+	if(index === -1){
+		throw Error("A megadott id-val nem található ticket");
 	}
 
-	if (!checkedDesc) {
-		throw Error('Hiányzó description')
-	}
+	const modifiedTicketList = Object.assign(ticketList[index],body); 
 
-	if (!chekedResp) {
-		throw Error('Hiányzó responsible')
-	}
-
-	const newTicket = {
-		id: String(Date.now()),
-		title,
-		description,
-		responsible,
-		status,
-		priority,
-		updatedAt,
-		gitHubIssueNumber,
-	};
-
-	ticketList.push(newTicket);
-    
-    return newTicket
-
+	return modifiedTicketList
 }
 
 export const TicketService = {
-    createTicket
-}
+    createTicket,
+	editTicket
+};
