@@ -2,7 +2,7 @@ import { ticketList } from "../ticketList.js";
 
 const emptyStringChecker = (fieldList) => {
     if (Array.isArray(fieldList)) {
-        fieldList.map((field) => {
+        fieldList.forEach((field) => {
             const checkedField =
                 typeof field.value === "string" &&
                 field.value.trim(" ").length > 0;
@@ -67,13 +67,13 @@ const editTicket = (id, body) => {
     ]);
 
     const modifiedTicket = {
-        title,
-        description,
-        responsible,
-        status,
-        priority,
+        title: title !== undefined && title,
+        description: description !== undefined && description,
+        responsible: responsible !== undefined && responsible,
+        status: status !== undefined && status,
+        priority: priority !== undefined && priority,
         updatedAt: new Date().toISOString(),
-        gitHubIssueNumber,
+        gitHubIssueNumber: gitHubIssueNumber !== undefined && gitHubIssueNumber,
     };
 
     const modifiedTicketList = Object.assign(ticketList[index], modifiedTicket);
