@@ -7,15 +7,15 @@ const createTicket = (body) => {
 	const chekedResp = typeof responsible === "string" && responsible.trim(" ").length > 0;
 
 	if (!checkedTitle) {
-		return res.status(400).json({ message: "Hiányzó title" });
+		throw Error('Hiányzó title')
 	}
 
 	if (!checkedDesc) {
-		return res.status(400).json({ message: "Hiányzó description" });
+		throw Error('Hiányzó description')
 	}
 
 	if (!chekedResp) {
-		return res.status(400).json({ message: "Hiányzó responsible" });
+		throw Error('Hiányzó responsible')
 	}
 
 	const newTicket = {
