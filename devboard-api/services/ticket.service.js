@@ -11,6 +11,15 @@ const allowedKeys = [
 const statuses = ["todo", "in_progress", "closed"];
 const priorities = ["low", "medium", "high"];
 
+const validateTicket = (field) => {
+    if (field === "status" && !statuses.find((item) => item === value)) {
+        throw Error("Nem megfelelő státusz");
+    }
+    if (field === "priority" && !priorities.find((item) => item === value)) {
+        throw Error("Nem megfelelő prioritás");
+    }
+};
+
 const emptyStringChecker = (fieldList) => {
     if (Array.isArray(fieldList)) {
         fieldList.forEach((field) => {
@@ -26,31 +35,23 @@ const emptyStringChecker = (fieldList) => {
 };
 
 const createTicket = (body) => {
-    const {
-        title,
-        description,
-        responsible,
-        status,
-        priority,
-        gitHubIssueNumber,
-    } = body;
+    let newTicket = {};
 
     emptyStringChecker([
-        { name: "title", value: title },
-        { name: "description", value: description },
-        { name: "responsible", value: responsible },
+        { name: "title", value: body.title },
+        { name: "description", value: body.description },
+        { name: "responsible", value: body.responsible },
     ]);
 
-    const newTicket = {
-        id: String(Date.now()),
-        title,
-        description,
-        responsible,
-        status,
-        priority,
-        updatedAt: new Date().toISOString(),
-        gitHubIssueNumber,
-    };
+    for (const [key, value] of Object.entries(body)) {
+        const allowedKey = allowedKeys.includes(key);
+        validateTicket(allowedKey);
+        if (allowedKey !== undefined && value !== undefined && value !== "") {
+            newTicket.id = String(Date.now()),
+            newTicket[key] = value,
+            newTicket.updatedAt = new Date().toISOString();
+        }
+    }
 
     ticketList.push(newTicket);
 
@@ -72,28 +73,15 @@ const editTicket = (id, body) => {
     ]);
 
     for (const [key, value] of Object.entries(body)) {
-        const allowedKey = allowedKeys.find((item) => item === key);
-
+        const allowedKey = allowedKeys.includes(key);
+        validateTicket(allowedKey);
         if (allowedKey !== undefined && value !== undefined && value !== "") {
-            if (
-                allowedKey === "status" &&
-                !statuses.find((item) => item === value)
-            ) {
-                throw Error("Nem megfelelő státusz");
-            }
-            if (
-                allowedKey === "priority" &&
-                !priorities.find((item) => item === value)
-            ) {
-                throw Error("Nem megfelelő prioritás");
-            }
             modifiedTicket[key] = value;
             modifiedTicket.updatedAt = new Date().toISOString();
         }
     }
 
     const modifiedTicketList = Object.assign(ticketList[index], modifiedTicket);
-    console.log("Módosított:", modifiedTicket, "Lista:", modifiedTicketList);
     return modifiedTicketList;
 };
 
