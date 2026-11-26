@@ -11,7 +11,7 @@ const allowedKeys = [
 const statuses = ["todo", "in_progress", "closed"];
 const priorities = ["low", "medium", "high"];
 
-const validateTicket = (field) => {
+const validateTicket = (field, value) => {
     if (field === "status" && !statuses.find((item) => item === value)) {
         throw Error("Nem megfelelő státusz");
     }
@@ -45,11 +45,11 @@ const createTicket = (body) => {
 
     for (const [key, value] of Object.entries(body)) {
         const allowedKey = allowedKeys.find((item) => item === key);
-        validateTicket(allowedKey);
+        validateTicket(allowedKey, value);
         if (allowedKey !== undefined && value !== undefined && value !== "") {
-            newTicket.id = String(Date.now()),
-            newTicket[key] = value,
-            newTicket.updatedAt = new Date().toISOString();
+            ((newTicket.id = String(Date.now())),
+                (newTicket[key] = value),
+                (newTicket.updatedAt = new Date().toISOString()));
         }
     }
 
@@ -74,7 +74,7 @@ const editTicket = (id, body) => {
 
     for (const [key, value] of Object.entries(body)) {
         const allowedKey = allowedKeys.find((item) => item === key);
-        validateTicket(allowedKey);
+        validateTicket(allowedKey, value);
         if (allowedKey !== undefined && value !== undefined && value !== "") {
             modifiedTicket[key] = value;
             modifiedTicket.updatedAt = new Date().toISOString();
