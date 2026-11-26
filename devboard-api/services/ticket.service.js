@@ -3,11 +3,14 @@ import { ticketList } from "../ticketList.js";
 const emptyStringChecker = (fieldList) => {
     if (Array.isArray(fieldList)) {
         fieldList.forEach((field) => {
-            const checkedField =
-                typeof field.value === "string" &&
-                field.value.trim(" ").length > 0;
-            if (!checkedField) {
-                throw Error(`Hiányzó ${field.name}`);
+            if (field !== null) {
+                const checkedField =
+                    typeof field.value === "string" &&
+                    field.value.trim(" ").length > 0;
+
+                if (!checkedField) {
+                    throw Error(`Hiányzó ${field.name}`);
+                }
             }
         });
     }
@@ -47,37 +50,29 @@ const createTicket = (body) => {
 
 const editTicket = (id, body) => {
     const index = ticketList.findIndex((item) => item.id === id);
-    const {
-        title,
-        description,
-        responsible,
-        status,
-        priority,
-        gitHubIssueNumber,
-    } = body;
+    let modifiedTicket = {};
 
     if (index === -1) {
         throw Error("A megadott id-val nem található ticket");
     }
 
     emptyStringChecker([
-        { name: "title", value: title },
-        { name: "description", value: description },
-        { name: "responsible", value: responsible },
+        { name: "title", value: body.title },
+        body.description
+            ? { name: "description", value: body.description }
+            : null,
+        { name: "responsible", value: body.responsible },
     ]);
 
-    const modifiedTicket = {
-        title: title !== undefined && title,
-        description: description !== undefined && description,
-        responsible: responsible !== undefined && responsible,
-        status: status !== undefined && status,
-        priority: priority !== undefined && priority,
-        updatedAt: new Date().toISOString(),
-        gitHubIssueNumber: gitHubIssueNumber !== undefined && gitHubIssueNumber,
-    };
+    for (const [key, value] of Object.entries(body)) {
+        if (value !== undefined && value !== "") {
+            console.log("Value: ", typeof value);
+            modifiedTicket[key] = value;
+            modifiedTicket.updatedAt = new Date().toISOString();
+        }
+    }
 
     const modifiedTicketList = Object.assign(ticketList[index], modifiedTicket);
-
     return modifiedTicketList;
 };
 
