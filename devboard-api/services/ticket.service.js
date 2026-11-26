@@ -1,16 +1,25 @@
 import { ticketList } from "../ticketList.js";
 
+const allowedKeys = [
+    "title",
+    "description",
+    "responsible",
+    "status",
+    "priority",
+    "gitHubIssueNumber",
+];
+const statuses = ["todo", "in_progress", "closed"];
+const priorities = ["low", "medium", "high"];
+
 const emptyStringChecker = (fieldList) => {
     if (Array.isArray(fieldList)) {
         fieldList.forEach((field) => {
-            if (field !== null) {
-                const checkedField =
-                    typeof field.value === "string" &&
-                    field.value.trim(" ").length > 0;
+            const checkedField =
+                typeof field.value === "string" &&
+                field.value.trim(" ").length > 0;
 
-                if (!checkedField) {
-                    throw Error(`Hiányzó ${field.name}`);
-                }
+            if (!checkedField) {
+                throw Error(`Hiányzó ${field.name}`);
             }
         });
     }
@@ -58,21 +67,33 @@ const editTicket = (id, body) => {
 
     emptyStringChecker([
         { name: "title", value: body.title },
-        body.description
-            ? { name: "description", value: body.description }
-            : null,
+        { name: "description", value: body.description },
         { name: "responsible", value: body.responsible },
     ]);
 
     for (const [key, value] of Object.entries(body)) {
-        if (value !== undefined && value !== "") {
-            console.log("Value: ", typeof value);
+        const allowedKey = allowedKeys.find((item) => item === key);
+
+        if (allowedKey !== undefined && value !== undefined && value !== "") {
+            if (
+                allowedKey === "status" &&
+                !statuses.find((item) => item === value)
+            ) {
+                throw Error("Nem megfelelő státusz");
+            }
+            if (
+                allowedKey === "priority" &&
+                !priorities.find((item) => item === value)
+            ) {
+                throw Error("Nem megfelelő prioritás");
+            }
             modifiedTicket[key] = value;
             modifiedTicket.updatedAt = new Date().toISOString();
         }
     }
 
     const modifiedTicketList = Object.assign(ticketList[index], modifiedTicket);
+    console.log("Módosított:", modifiedTicket, "Lista:", modifiedTicketList);
     return modifiedTicketList;
 };
 
