@@ -44,7 +44,7 @@ const createTicket = (body) => {
     ]);
 
     for (const [key, value] of Object.entries(body)) {
-        const allowedKey = allowedKeys.includes(key);
+        const allowedKey = allowedKeys.find((item) => item === key);
         validateTicket(allowedKey);
         if (allowedKey !== undefined && value !== undefined && value !== "") {
             newTicket.id = String(Date.now()),
@@ -73,7 +73,7 @@ const editTicket = (id, body) => {
     ]);
 
     for (const [key, value] of Object.entries(body)) {
-        const allowedKey = allowedKeys.includes(key);
+        const allowedKey = allowedKeys.find((item) => item === key);
         validateTicket(allowedKey);
         if (allowedKey !== undefined && value !== undefined && value !== "") {
             modifiedTicket[key] = value;
